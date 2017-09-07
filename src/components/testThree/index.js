@@ -3,13 +3,13 @@ export default {
   name: 'testThree',
   data: function () {
     let arr = []
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 24; i++) {
       let temp = [];
-      for (let j = 0; j < 20; j++) {
-        if(i === 0 || j === 0 || j === 19) {
+      for (let j = 0; j < 24; j++) {
+        if(i === 0 || j === 0 || j === 23) {
           temp.push('0')
-        } else if(i > 3 && j > 3 && (i < 16 && j < 16)) {
-          if(i >= 9 && i < 11 && j >= 9 && j < 11) {
+        } else if(i > 3 && j > 3 && (i < 20 && j < 20)) {
+          if(i >= 11 && i < 13 && j >= 11 && j < 13) {
             temp.push('1')
           } else {
             temp.push('2')
@@ -34,12 +34,8 @@ export default {
       },
       char: {
         current: {
-          x: 10,
-          y: 10
-        },
-        previous: {
-          x: 10,
-          y: 10
+          x: 12,
+          y: 12
         }
       },
       board: arr
@@ -71,15 +67,15 @@ export default {
       }
       this.drawWalls(ctx)
 
-      for(let i = 0; i < 25; i++) {
+      for(let i = 0; i < 24; i++) {
         ctx.moveTo(coords.a, 0)
         ctx.lineTo(coords.a, 1000)
         ctx.stroke()
         ctx.moveTo(0, coords.b)
         ctx.lineTo(1000, coords.b)
         ctx.stroke()
-        coords.a += 50
-        coords.b += 50
+        coords.a += 41.5
+        coords.b += 41.5
       }
       
       this.drawBoard(ctx)
@@ -87,50 +83,50 @@ export default {
     },
     drawBoard: function(ctx) {
       let counter = 0
-      for (let i = 0; i < 20; i++) {
-        for (let j = 0; j < 20; j++) {
+      for (let i = 0; i < 24; i++) {
+        for (let j = 0; j < 24; j++) {
           if(this.board[j][i] === '2') {
             ctx.fillStyle = 'green'
-            ctx.fillRect(i * 50, j * 50, 50, 50)
+            ctx.fillRect(i * 41.5, j * 41.5, 41.5, 41.5)
             ctx.stroke()
           }
-          if(j > 0) {
-            ctx.font = "25px Arial"
-            ctx.fillStyle = 'black'
-            ctx.fillText(j, j * 50, i * 50)
-          } else {
-            ctx.font = "25px Arial"
-            ctx.fillStyle = 'black'
-            ctx.fillText(counter - 1, j * 50, i * 50)
-          }
+          // if(j > 0) {
+          //   ctx.font = "25px Arial"
+          //   ctx.fillStyle = 'black'
+          //   ctx.fillText(j, j * 41.5, i * 41.5)
+          // } else {
+          //   ctx.font = "25px Arial"
+          //   ctx.fillStyle = 'black'
+          //   ctx.fillText(counter - 1, j * 41.5, i * 41.5)
+          // }
         }
         counter++
       }
     },
     drawChar: function(ctx) {
       ctx.fillStyle = 'blue'
-      ctx.fillRect(this.char.current.x * 50, this.char.current.y * 50, 50, 50)
+      ctx.fillRect(this.char.current.x * 41.5, this.char.current.y * 41.5, 41.5, 41.5)
       ctx.stroke()
     },
     drawWalls: function(ctx) {
       // left side
       ctx.fillStyle = 'grey'
-      ctx.fillRect(0, 50, 50, 1000)
+      ctx.fillRect(0, 41.5, 41.5, 1000)
 
       // right side
-      ctx.fillRect(950, 0, 50, 1000)
+      ctx.fillRect(953, 0, 49.5, 1000)
 
       // top
-      ctx.fillRect(0, 0, 1000, 50)
+      ctx.fillRect(0, 0, 1000, 41.5)
 
       // bottom
-      ctx.fillRect(0, 950, 1000, 50)
+      ctx.fillRect(0, 953, 1000, 49.5)
     },
     'down': function () {
       if(!this.checkCollision(0)) {
         return
       }
-      this.char.current.y = this.char.current.y + 1 < 19 ? this.char.current.y + 1 : this.char.current.y
+      this.char.current.y = this.char.current.y + 1 < 23 ? this.char.current.y + 1 : this.char.current.y
       this.draw()
     },
     'up': function () {
@@ -151,7 +147,7 @@ export default {
       if(!this.checkCollision(3)) {
         return
       }
-      this.char.current.x = this.char.current.x + 1 < 19 ? this.char.current.x + 1 : this.char.current.x
+      this.char.current.x = this.char.current.x + 1 < 23 ? this.char.current.x + 1 : this.char.current.x
       this.draw()
       
     },
@@ -173,14 +169,14 @@ export default {
       if(this.board[y][x] === '2') {
         let i = 0;
         while(true) {
-          console.log(dir, x, y, upDown, leftRight)
+          // console.log(dir, x, y, upDown, leftRight)
           if(!this.board[y][x]) {
             break;
           }
           if(this.board[y][x] === '1') {
             this.board[y][x] = '2'
-            console.log("changed: ", x, y)
-            console.log(this.board)
+            // console.log("changed: ", x, y)
+            // console.log(this.board)
             i++;
             break;
           } else if(this.board[y][x] === '0') {
@@ -195,10 +191,9 @@ export default {
 
           x = this.char.current.x + leftRight
           y = this.char.current.y + upDown
-          if(x === 0 || x > 18 || y === 0 || y > 18) {
+          if(x === 0 || x > 22 || y === 0 || y > 22) {
             break;
           }
-          i++;
         }
         if(i) {
           this.board[tempY][tempX] = '1'
