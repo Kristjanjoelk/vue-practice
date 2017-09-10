@@ -2,6 +2,7 @@ import testOne from '@/components/testOne/index.vue'
 import testTwo from '@/components/testTwo/index.vue'
 import testThree from '@/components/testThree/index.vue'
 import explore from '@/components/explore/index.vue'
+import pathFinding from '@/components/pathFinding/index.vue'
 
 export const pages = [
   {
@@ -23,6 +24,11 @@ export const pages = [
     name: 'testThree',
     path: '/testThree',
     component: testThree
+  },
+  {
+    name: 'pathFinding',
+    path: '/pathFinding',
+    component: pathFinding
   }
 ]
 

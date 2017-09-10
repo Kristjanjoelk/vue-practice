@@ -1,4 +1,6 @@
 /* eslint-disable */
+//import computer from './computer'
+
 export default {
   name: 'testThree',
   data: function () {
@@ -38,7 +40,8 @@ export default {
           y: 12
         }
       },
-      board: arr
+      board: arr,
+      // comp: new computer('testParameter')
     }
   },
   computed: {
@@ -130,6 +133,8 @@ export default {
       this.draw()
     },
     'up': function () {
+      console.log(this.comp)
+      this.comp.sayHelloWorld()
       if(!this.checkCollision(1)) {
         return
       }
