@@ -5,6 +5,10 @@ export default {
   name: 'pathFinding',
   data: function () {
     var width = 5
+    var playerLoc = {
+      x: 0,
+      y: 0
+    } 
     var prizeLoc = {
       x: 2,
       y: 4
@@ -18,12 +22,14 @@ export default {
       arr.push(temp)
     }
     arr[prizeLoc.y][prizeLoc.x] = 'x'
+    arr[playerLoc.y][playerLoc.x] = '3'
     // arr[width - 2][width - 2] = '2'
     return {
       board: arr,
       comp: new computer({width: width}),
       maxWidth: width,
-      prizeLoc: prizeLoc
+      prizeLoc: prizeLoc,
+      playerLoc: playerLoc
     }
   },
   methods: {
@@ -37,6 +43,7 @@ export default {
         arr.push(temp)
       }
       arr[this.prizeLoc.y][this.prizeLoc.x] = 'x'
+      arr[this.playerLoc.y][this.playerLoc.x] = '3'
       this.board = arr
     },
     drawSolution: function(sol) {
@@ -49,9 +56,13 @@ export default {
       var ctx = c.getContext('2d')
       ctx.clearRect(0, 0, 1000, 1000)
       this.draw()
+      let playerPos = {
+        x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 150 : start.x + 50,
+        y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 150 : start.y + 50
+      }
       ctx.strokeStyle = 'green'
       ctx.beginPath()
-      ctx.moveTo(start.x + 50, start.y + 50)
+      ctx.moveTo(playerPos.x, playerPos.y)
       for(let i = 1; i < sol.length; i++) {
         // console.log('drawing:', sol[i])
         if(sol[i]) {
@@ -85,11 +96,6 @@ export default {
       var ctx = c.getContext('2d')
       for(let i = 0; i < this.maxWidth; i++) {
         ctx.strokeStyle = 'black'
-        if(i === 0) {
-          ctx.beginPath();
-          ctx.arc(start.x + 50, start.y + 50, 15, 0, 2*Math.PI);
-          ctx.stroke();
-        }
         for(let j = 0; j < this.maxWidth; j++) {
           ctx.rect(start.x + j * 100, start.y + i * 100, 100, 100)
           ctx.stroke()
@@ -101,6 +107,16 @@ export default {
             ctx.fillStyle = 'green'
             ctx.fillRect(start.x + j * 100, start.y + i * 100, 100, 100)
             ctx.stroke()
+          }
+          if(this.board[i][j] === '3') {
+            console.log('found circle')
+            let playerPos = {
+              x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 150 : start.x + 50,
+              y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 150 : start.y + 50
+            }
+            ctx.beginPath();
+            ctx.arc(playerPos.x, playerPos.y, 15, 0, 2*Math.PI);
+            ctx.stroke();
           }
         }
       }
@@ -130,16 +146,8 @@ export default {
       }
     },
     findPath: function() {
-      let currLoc = {
-        x: 0,
-        y: 0
-      }
-      let fixedPrizeLoc = {
-        x: parseInt(this.prizeLoc['get x']),
-        y: parseInt(this.prizeLoc['get y'])
-      }
-      console.log('finding', this.fixedPrizeLoc)
-      var sol =  this.comp.initFindPlayer(currLoc, this.board, this.prizeLoc, this.drawSolution)
+      console.log('finding', this.playerLoc, this.prizeLoc)
+      var sol =  this.comp.initFindPlayer(this.playerLoc, this.board, this.prizeLoc, this.drawSolution)
 
     }
   },
@@ -147,7 +155,6 @@ export default {
     this.draw()
   },
   watch: {
-    // whenever question changes, this function will run
     prizeLocX(newValue){
       this.prizeLoc.x = parseInt(newValue)
       console.log('prizeLoc after change', this.prizeLoc)
@@ -155,6 +162,14 @@ export default {
     prizeLocY(newValue) {
       this.prizeLoc.y = parseInt(newValue)
       console.log('prizeLoc after change', this.prizeLoc)
+    },
+    playerLocX(newValue){
+      this.playerLoc.x = parseInt(newValue)
+      console.log('playerLoc after change', this.playerLoc)
+    },
+    playerLocY(newValue) {
+      this.playerLoc.y = parseInt(newValue)
+      console.log('playerLoc after change', this.playerLoc)
     }
   },
   computed: {
@@ -163,6 +178,12 @@ export default {
     },
     prizeLocY() {
       return this.prizeLoc.y
+    },
+    playerLocX() {
+      return this.playerLoc.x
+    },
+    playerLocY() {
+      return this.playerLoc.y
     }
   }
 }
