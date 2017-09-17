@@ -4,7 +4,7 @@ import computer from '../testThree/computer'
 export default {
   name: 'pathFinding',
   data: function () {
-    var width = 5
+    var width = 23
     var playerLoc = {
       x: 0,
       y: 0
@@ -50,32 +50,34 @@ export default {
       console.log('drawing this solution:', sol)
       var c = document.getElementById('my-canvas')
       let start = {
-        x: 300,
-        y: 200
+        x: 0,
+        y: 0
       }
       var ctx = c.getContext('2d')
       ctx.clearRect(0, 0, 1000, 1000)
       this.draw()
       let playerPos = {
-        x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 150 : start.x + 50,
-        y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 150 : start.y + 50
+        x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 41.5 + 20 : start.x + 20,
+        y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 41.5 + 20 : start.y + 20
       }
       ctx.strokeStyle = 'green'
       ctx.beginPath()
       ctx.moveTo(playerPos.x, playerPos.y)
-      for(let i = 1; i < sol.length; i++) {
-        // console.log('drawing:', sol[i])
+      console.log('drawing:', sol)
+      for(let i = 0; i < sol.length; i++) {
+        console.log('drawing:', sol[i])
         if(sol[i]) {
           if(sol[i].found) {
+            console.log('sol.found', sol[i])
             let linePos = {
-              width: sol[i].loc.x > 0 ? sol[i].loc.x * 125 : 50,
-              height: sol[i].loc.y > 0 ? sol[i].loc.y * 125 : 50
+              width: sol[i].loc.x > 0 ? sol[i].loc.x * 41.5 + 20: 20,
+              height: sol[i].loc.y > 0 ? sol[i].loc.y * 41.5 + 20: 20
             }
             ctx.lineTo(start.x + linePos.width, start.y + linePos.height)
           } else {
             let linePos = {
-              width: sol[i].x > 0 ? sol[i].x * 125 : 50,
-              height: sol[i].y > 0 ? sol[i].y * 125 : 50
+              width: sol[i].x > 0 ? sol[i].x * 41.5 + 20: 20,
+              height: sol[i].y > 0 ? sol[i].y * 41.5 + 20: 20
             }
             ctx.lineTo(start.x + linePos.width, start.y + linePos.height)
           }
@@ -90,32 +92,32 @@ export default {
       c.width = 1000
       c.height = 1000
       let start = {
-        x: 300,
-        y: 200
+        x: 0,
+        y: 0
       }
       var ctx = c.getContext('2d')
       for(let i = 0; i < this.maxWidth; i++) {
         ctx.strokeStyle = 'black'
         for(let j = 0; j < this.maxWidth; j++) {
-          ctx.rect(start.x + j * 100, start.y + i * 100, 100, 100)
+          ctx.rect(start.x + j * 41.5, start.y + i * 41.5, 41.5, 41.5)
           ctx.stroke()
           if(this.board[i][j] === 'x') {
-            ctx.rect(start.x + j * 112, start.y + i * 112, 50, 50)
+            ctx.rect(start.x + j * 41.5 + 10, start.y + i * 41.5 + 10, 41.5/2, 41.5/2)
             ctx.stroke()
           } 
           if(this.board[i][j] === '2') {
             ctx.fillStyle = 'green'
-            ctx.fillRect(start.x + j * 100, start.y + i * 100, 100, 100)
+            ctx.fillRect(start.x + j * 41.5, start.y + i * 41.5, 41.5, 41.5)
             ctx.stroke()
           }
           if(this.board[i][j] === '3') {
             console.log('found circle')
             let playerPos = {
-              x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 150 : start.x + 50,
-              y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 150 : start.y + 50
+              x: this.playerLoc.x > 0 ? start.x + this.playerLoc.x * 41.5 + 20: start.x + 41.5/2,
+              y: this.playerLoc.y > 0 ? start.y + this.playerLoc.y * 41.5 + 20 : start.y + 41.5/2
             }
             ctx.beginPath();
-            ctx.arc(playerPos.x, playerPos.y, 15, 0, 2*Math.PI);
+            ctx.arc(playerPos.x, playerPos.y, 2, 0, 2*Math.PI);
             ctx.stroke();
           }
         }
@@ -123,20 +125,20 @@ export default {
       if(sol) {
         ctx.strokeStyle = 'green'
         ctx.beginPath()
-        ctx.moveTo(start.x + 50, start.y + 50)
-        for(let i = 1; i < sol.length; i++) {
+        ctx.moveTo(start.x + 20, start.y + 20)
+        for(let i = 0; i < sol.length; i++) {
           // console.log('drawing:', sol[i])
           if(sol[i]) {
             if(sol[i].found) {
               let linePos = {
-                width: sol[i].loc.x > 0 ? sol[i].loc.x * 125 : 50,
-                height: sol[i].loc.y > 0 ? sol[i].loc.y * 125 : 50
+                width: sol[i].loc.x > 0 ? sol[i].loc.x * 41.5 : 41.5,
+                height: sol[i].loc.y > 0 ? sol[i].loc.y * 41.5 : 41.5
               }
               ctx.lineTo(start.x + linePos.width, start.y + linePos.height)
             } else {
               let linePos = {
-                width: sol[i].x > 0 ? sol[i].x * 125 : 50,
-                height: sol[i].y > 0 ? sol[i].y * 125 : 50
+                width: sol[i].x > 0 ? sol[i].x * 41.5 - 20: 41.5,
+                height: sol[i].y > 0 ? sol[i].y * 41.5 - 20: 41.5
               }
               ctx.lineTo(start.x + linePos.width, start.y + linePos.height)
             }

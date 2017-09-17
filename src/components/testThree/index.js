@@ -1,5 +1,5 @@
 /* eslint-disable */
-//import computer from './computer'
+import computer from './computer'
 
 export default {
   name: 'testThree',
@@ -22,25 +22,23 @@ export default {
       }
       arr.push(temp)
     }
+    arr[11][2] = 'x'
     return {
-      mouse: {
-        current: {
-          x: 0,
-          y: 0
-        },
-        previous: {
-          x: 0,
-          y: 0
-        },
-        down: false
-      },
-      char: {
-        current: {
-          x: 12,
-          y: 12
-        }
+      playerLoc: {
+        x: 12,
+        y: 12
       },
       board: arr,
+      hasMoved: true,
+      enemyLoc: {
+        x: 11,
+        y: 2
+      },
+      time: null,
+      timePassed: 0,
+      comp: new computer({width: 23}),
+      enemyCounter: 0,
+      oldSolution: null
       // comp: new computer('testParameter')
     }
   },
@@ -83,8 +81,11 @@ export default {
       
       this.drawBoard(ctx)
       this.drawChar(ctx)
+      this.actuallyDrawEnemy(ctx)
+      this.drawCurrentSolution(ctx)
     },
     drawBoard: function(ctx) {
+      console.log('current enemyLoc', this.enemyLoc.x, this.enemyLoc.y)
       let counter = 0
       for (let i = 0; i < 24; i++) {
         for (let j = 0; j < 24; j++) {
@@ -93,22 +94,48 @@ export default {
             ctx.fillRect(i * 41.5, j * 41.5, 41.5, 41.5)
             ctx.stroke()
           }
-          // if(j > 0) {
-          //   ctx.font = "25px Arial"
-          //   ctx.fillStyle = 'black'
-          //   ctx.fillText(j, j * 41.5, i * 41.5)
-          // } else {
-          //   ctx.font = "25px Arial"
-          //   ctx.fillStyle = 'black'
-          //   ctx.fillText(counter - 1, j * 41.5, i * 41.5)
-          // }
         }
         counter++
       }
     },
     drawChar: function(ctx) {
       ctx.fillStyle = 'blue'
-      ctx.fillRect(this.char.current.x * 41.5, this.char.current.y * 41.5, 41.5, 41.5)
+      ctx.fillRect(this.playerLoc.x * 41.5, this.playerLoc.y * 41.5, 41.5, 41.5)
+      ctx.stroke()
+    },
+    actuallyDrawEnemy: function(ctx) {
+      ctx.fillStyle = 'black'
+      ctx.fillRect(this.enemyLoc.x * 41.5, this.enemyLoc.y * 41.5, 41.5, 41.5)
+      ctx.stroke()
+    },
+    drawCurrentSolution: function(ctx) {
+      let sol = this.oldSolution
+      if(!sol) {
+        console.log('no solutions to draw')
+        return
+      }
+      ctx.beginPath()
+      ctx.moveTo(this.enemyLoc.x, this.enemyLoc.y)
+      // console.log('drawing:', sol)
+      for(let i = 0; i < sol.length; i++) {
+        // console.log('drawing:', sol[i])
+        if(sol[i]) {
+          if(sol[i].found) {
+            // console.log('sol.found', sol[i])
+            let linePos = {
+              width: sol[i].loc.x > 0 ? sol[i].loc.x * 41.5 + 20: 20,
+              height: sol[i].loc.y > 0 ? sol[i].loc.y * 41.5 + 20: 20
+            }
+            ctx.lineTo(linePos.width, linePos.height)
+          } else {
+            let linePos = {
+              width: sol[i].x > 0 ? sol[i].x * 41.5 + 20: 20,
+              height: sol[i].y > 0 ? sol[i].y * 41.5 + 20: 20
+            }
+            ctx.lineTo(linePos.width, linePos.height)
+          }
+        }
+      }
       ctx.stroke()
     },
     drawWalls: function(ctx) {
@@ -129,37 +156,35 @@ export default {
       if(!this.checkCollision(0)) {
         return
       }
-      this.char.current.y = this.char.current.y + 1 < 23 ? this.char.current.y + 1 : this.char.current.y
+      this.playerLoc.y = this.playerLoc.y + 1 < 23 ? this.playerLoc.y + 1 : this.playerLoc.y
+      this.hasMoved = true
       this.draw()
     },
     'up': function () {
-      console.log(this.comp)
-      this.comp.sayHelloWorld()
       if(!this.checkCollision(1)) {
         return
       }
-      this.char.current.y = this.char.current.y - 1 >= 1 ? this.char.current.y - 1 : this.char.current.y
+      this.playerLoc.y = this.playerLoc.y - 1 >= 1 ? this.playerLoc.y - 1 : this.playerLoc.y
+      this.hasMoved = true
       this.draw()
     },
     'left': function () {
       if(!this.checkCollision(2)) {
         return
       }
-      this.char.current.x = this.char.current.x - 1 >= 1 ? this.char.current.x - 1 : this.char.current.x
+      this.playerLoc.x = this.playerLoc.x - 1 >= 1 ? this.playerLoc.x - 1 : this.playerLoc.x
+      this.hasMoved = true
       this.draw()
     },
     'right': function () {
       if(!this.checkCollision(3)) {
         return
       }
-      this.char.current.x = this.char.current.x + 1 < 23 ? this.char.current.x + 1 : this.char.current.x
+      this.playerLoc.x = this.playerLoc.x + 1 < 23 ? this.playerLoc.x + 1 : this.playerLoc.x
+      this.hasMoved = true
       this.draw()
-      
     },
     checkCollision: function(dir) {
-      // 0 = down   2 = left
-      // 1 = up     3 = right
-
       let upDown = 0
       let leftRight = 0
       if(dir > 1) {
@@ -167,8 +192,8 @@ export default {
       } else {
         upDown = dir === 0 ? 1 : -1
       }
-      let x = this.char.current.x + leftRight
-      let y = this.char.current.y + upDown
+      let x = this.playerLoc.x + leftRight
+      let y = this.playerLoc.y + upDown
       let tempX = x
       let tempY = y
       if(this.board[y][x] === '2') {
@@ -194,8 +219,8 @@ export default {
             upDown = dir === 0 ? upDown + 1 : upDown - 1
           }
 
-          x = this.char.current.x + leftRight
-          y = this.char.current.y + upDown
+          x = this.playerLoc.x + leftRight
+          y = this.playerLoc.y + upDown
           if(x === 0 || x > 22 || y === 0 || y > 22) {
             break;
           }
@@ -207,6 +232,71 @@ export default {
         return i;
       }
       return true;
+    },
+    drawEnemy: function(sol) {
+      this.oldSolution = sol
+      // console.log('enemyLoc Before new', this.enemyLoc.x, this.enemyLoc.y)
+      if(!sol) {
+        // console.log('sol', sol)
+        // console.log('something went wrong finding solution...')
+      } else if(!sol.length) {
+        this.enemyLoc = this.getPosition(sol, this.enemyLoc)
+      } else {
+        this.enemyLoc = this.getPosition(sol[this.enemyCounter], this.enemyLoc)
+      }
+      this.draw()
+      // console.log('enemyLoc after new', this.enemyLoc.x, this.enemyLoc.y)
+      // console.log('after drawEnemy')
+    },
+    moveEnemy: function() {
+      if(this.hasMoved) {
+        this.enemyCounter = 0
+        this.hasMoved = false
+        console.log('player has moved and initFindplayer')
+        this.comp.initFindPlayer(this.playerLoc, this.board, this.enemyLoc, this.drawEnemy)
+      } else {
+        this.enemyCounter++
+        this.drawEnemy(this.oldSolution)
+      }
+      return
+    },
+    animationFrame: function(timeStamp) {
+      if (!this.time) this.time = timeStamp
+      if (this.getSeconds(timeStamp)) {
+        this.moveEnemy()
+      }
+      requestAnimationFrame(this.animationFrame.bind(this));
+    },
+    getSeconds: function(timeStamp) {
+      var diff = timeStamp - this.time;
+      this.time = timeStamp
+      // Hundredths of a second are 100 ms
+      this.timePassed += diff / 10;
+      // Seconds are 100 hundredths of a second
+      if (this.timePassed >= 100) {
+        this.timePassed = 0
+        return true
+      }
+      return false
+    },
+    getPosition: function(dir, loc) {
+      let upDown = 0
+      let leftRight = 0
+      if(dir < 2) {
+          upDown = dir === 0 ? upDown - 1 : upDown + 1
+      } else if(dir < 4 && dir >= 2) {
+          leftRight = dir === 2 ? leftRight - 1 : leftRight + 1
+      } else if(dir < 6) {
+          leftRight = 1
+          upDown = dir === 5 ? upDown - 1 : upDown + 1
+      } else if(dir >= 6) {
+          leftRight = -1
+          upDown = dir === 7 ? upDown - 1 : upDown + 1
+      }
+      return {
+        x: loc.x + leftRight,
+        y: loc.y + upDown
+      }
     }
   },
   mounted: function () {
@@ -245,5 +335,6 @@ export default {
     document.addEventListener('keydown', keyDown, true)
     document.addEventListener('keyup', keyUp, true)
     this.draw()
+    requestAnimationFrame(this.animationFrame.bind(this))
   }
 }
